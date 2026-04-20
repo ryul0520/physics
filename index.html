@@ -84,8 +84,20 @@
         .game-container { 
             flex: 1; display: flex; flex-direction: column; justify-content: center; 
             align-items: center; perspective: 1200px; padding-bottom: 80px; position: relative; 
+            overflow: hidden; /* 배경 효과가 밖으로 나가지 않도록 함 */
         }
         
+        #bg-overlay { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            z-index: 1; pointer-events: none; opacity: 0; 
+            display: flex; justify-content: center; align-items: center;
+            transition: opacity 0.3s;
+        }
+        #bg-icon { 
+            font-size: 15rem; font-weight: 900; opacity: 0.3; color: white; 
+            transform: scale(0.5); transition: transform 0.3s;
+        }
+
         .card-wrapper { 
             width: 85%; max-width: 360px; height: 50vh; max-height: 450px; 
             transform-style: preserve-3d; z-index: 5; touch-action: none;
@@ -154,6 +166,8 @@
         </div>
         
         <div class="game-container" id="touchArea">
+            <div id="bg-overlay"><div id="bg-icon"></div></div>
+            
             <div class="card-wrapper" id="cardWrapper">
                 <div class="card-inner" id="cardInner">
                     <div class="card-face card-front">
@@ -311,6 +325,8 @@
         const touchArea = document.getElementById('touchArea');
         const cw = document.getElementById('cardWrapper');
         const ci = document.getElementById('cardInner');
+        const bgOverlay = document.getElementById('bg-overlay');
+        const bgIcon = document.getElementById('bg-icon');
         
         let startX = 0, currentX = 0, isDragging = false;
 
@@ -335,11 +351,28 @@
             currentX = e.touches[0].clientX;
             let dx = currentX - startX;
             
-            // 카드 이동 및 약간의 회전 효과 (O/X 색상 변경 기능은 제거됨)
+            // 카드 이동 및 약간의 회전 효과
             cw.style.transform = `translateX(${dx}px) rotate(${dx * 0.05}deg)`;
+            
+            // 배경 효과 로직
+            const prog = Math.min(Math.abs(dx) / (window.innerWidth * 0.4), 1);
+            bgOverlay.style.opacity = 1;
+
+            if (dx > 0) { // 오른쪽으로 스와이프 (다음)
+                bgOverlay.style.backgroundColor = `rgba(139, 195, 74, ${prog * 0.8})`; // 초록색
+                bgIcon.innerText = "O";
+            } else { // 왼쪽으로 스와이프 (이전)
+                bgOverlay.style.backgroundColor = `rgba(239, 83, 80, ${prog * 0.8})`; // 빨간색
+                bgIcon.innerText = "X";
+            }
+            bgIcon.style.transform = `scale(${0.5 + prog * 0.5})`;
+
         }, { passive: false });
 
         cw.addEventListener('touchend', e => {
+            bgOverlay.style.opacity = 0;
+            bgIcon.style.transform = 'scale(0.5)';
+
             if (!isDragging) return;
             isDragging = false;
             let dx = currentX - startX;
