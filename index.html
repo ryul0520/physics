@@ -2,7 +2,6 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <!-- 모바일 환경에서 화면 확대/축소 완벽 차단 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>PHYSICS MASTER</title>
     
@@ -25,12 +24,10 @@
             font-family: -apple-system, BlinkMacSystemFont, "Pretendard", sans-serif;
             height: 100vh; height: 100dvh; overflow: hidden;
             user-select: none; -webkit-user-select: none;
-            
             touch-action: none;
             overscroll-behavior: none; 
         }
 
-        /* 인트로 */
         #intro-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--primary); z-index: 10000;
@@ -39,18 +36,15 @@
         }
         #intro-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
 
-        /* 페이지 공통 */
         .page { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; flex-direction: column; z-index: 10; background: var(--bg); }
         .page.active { display: flex; }
 
-        /* 헤더 */
         .header {
             padding: 12px 20px; background: white; display: flex; 
             justify-content: space-between; align-items: center; 
             border-bottom: 1px solid #e2e8f0; font-weight: 800;
         }
 
-        /* 로비 */
         .lobby-content { 
             flex: 1; overflow-y: auto; padding: 20px; max-width: 900px; margin: 0 auto; width: 100%; 
             touch-action: pan-y;
@@ -108,7 +102,35 @@
         .modal-content td:first-child { font-weight: 600; color: #1e293b; width: 55%; }
         .modal-content td:last-child { color: #64748b; }
 
-        /* 카드 게임 */
+        /* 완료/일시정지 모달 공통 */
+        .overlay-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); z-index: 3000;
+            display: none; justify-content: center; align-items: center;
+        }
+        .overlay-modal.visible { display: flex; }
+        .modal-card {
+            background: white; width: 85%; max-width: 380px;
+            border-radius: 24px; padding: 36px 28px; text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popIn {
+            from { transform: scale(0.7); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .modal-card .emoji { font-size: 4rem; margin-bottom: 12px; }
+        .modal-card h2 { margin: 0 0 8px; font-size: 1.6rem; color: #1e293b; }
+        .modal-card p { color: #64748b; font-size: 0.95rem; margin: 0 0 24px; }
+        .modal-action-btn {
+            width: 100%; padding: 14px; border-radius: 14px; border: none;
+            font-size: 1rem; font-weight: 800; cursor: pointer; margin-bottom: 10px;
+        }
+        .modal-action-btn.primary { background: var(--primary); color: white; }
+        .modal-action-btn.secondary { background: #f1f5f9; color: #334155; }
+        .modal-action-btn.danger { background: #FEE2E2; color: #DC2626; }
+
+        /* 게임 */
         #game-page { touch-action: none; }
         .game-container { 
             flex: 1; display: flex; flex-direction: column; justify-content: center; 
@@ -120,11 +142,21 @@
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
             z-index: 1; pointer-events: none; opacity: 0; 
             display: flex; justify-content: center; align-items: center;
-            transition: opacity 0.3s;
+            transition: opacity 0.15s;
         }
         #bg-icon { 
-            font-size: 15rem; font-weight: 900; opacity: 0.3; color: white; 
-            transform: scale(0.5); transition: transform 0.3s;
+            font-size: 15rem; font-weight: 900; opacity: 0.35; color: white; 
+            transform: scale(0.5); transition: transform 0.15s;
+        }
+
+        /* 남은 카드 수 진행 바 */
+        .progress-bar-wrap {
+            position: absolute; top: 0; left: 0; width: 100%; height: 4px;
+            background: #e2e8f0; z-index: 10;
+        }
+        .progress-bar-fill {
+            height: 100%; background: var(--primary);
+            transition: width 0.3s ease; border-radius: 0 2px 2px 0;
         }
 
         .card-wrapper { 
@@ -150,16 +182,35 @@
         .star-toggle { position: absolute; top: 20px; right: 20px; font-size: 2.2rem; color: #E2E8F0; z-index: 100; padding: 10px; cursor: pointer; }
         .star-toggle.active { color: var(--star-color); }
 
+        /* 힌트 레이블 */
+        .swipe-hint {
+            position: absolute; bottom: 100px; display: flex; gap: 30px;
+            z-index: 10; pointer-events: none;
+        }
+        .hint-pill {
+            display: flex; align-items: center; gap: 6px;
+            background: white; border-radius: 20px; padding: 6px 14px;
+            font-size: 0.8rem; font-weight: 700; color: #94a3b8;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .hint-pill.ok { color: #8BC34A; }
+        .hint-pill.no { color: #EF5350; }
+
         .nav-bar { 
             position: absolute; bottom: 30px; width: 100%; max-width: 400px;
             display: flex; justify-content: space-between; padding: 0 30px;
         }
         .nav-btn {
-            background: white; border: 2px solid var(--primary); color: var(--primary);
-            padding: 12px 24px; border-radius: 30px; font-weight: 800; font-size: 1rem;
+            background: white; border: 2px solid #e2e8f0; color: #64748b;
+            padding: 12px 20px; border-radius: 30px; font-weight: 800; font-size: 0.9rem;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.1s;
+            display: flex; align-items: center; gap: 6px;
         }
-        .nav-btn:active { transform: scale(0.95); background: var(--primary); color: white; }
+        .nav-btn.ok { border-color: #8BC34A; color: #8BC34A; }
+        .nav-btn.no { border-color: #EF5350; color: #EF5350; }
+        .nav-btn:active { transform: scale(0.95); }
+        .nav-btn.ok:active { background: #8BC34A; color: white; }
+        .nav-btn.no:active { background: #EF5350; color: white; }
 
     </style>
 </head>
@@ -179,8 +230,8 @@
         <div class="lobby-content">
             <div style="font-size: 0.9rem; color: #64748B; margin-bottom: 10px; font-weight: 700;">Tools & Review</div>
             <div class="tool-btn-group">
-                <button class="tool-btn" onclick="openWordListModal()">📖 단어 목록 보기</button>
-                <button class="tool-btn" onclick="startFavorites()">⭐ 즐겨찾기 복습</button>
+                <button class="tool-btn" onclick="openWordListModal()">📖 Word List</button>
+                <button class="tool-btn" onclick="startFavorites()">⭐ Starred Review</button>
             </div>
             <div style="font-size: 0.9rem; color: #64748B; margin-top: 25px; margin-bottom: 10px; font-weight: 700;">Chapters</div>
             <div class="stage-grid" id="stageGrid"></div>
@@ -190,12 +241,13 @@
     <!-- 게임 -->
     <div id="game-page" class="page">
         <div class="header">
-            <button onclick="goBack()" style="background:none; border:none; font-size:1.4rem; color:#64748B; padding:0 10px;">✕</button>
+            <button onclick="openPauseModal()" style="background:none; border:none; font-size:1.4rem; color:#64748B; padding:0 10px;">⏸</button>
             <div id="stage-info" style="font-size:1rem;">Chapter 1</div>
-            <span id="queue-count" style="color:var(--primary); font-variant-numeric: tabular-nums;">0 / 0</span>
+            <span id="queue-count" style="color:var(--primary); font-variant-numeric: tabular-nums; font-size:0.9rem;">0 left</span>
         </div>
         
         <div class="game-container" id="touchArea">
+            <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressFill"></div></div>
             <div id="bg-overlay"><div id="bg-icon"></div></div>
             
             <div class="card-wrapper" id="cardWrapper">
@@ -203,7 +255,7 @@
                     <div class="card-face card-front">
                         <div class="star-toggle" id="starFront" onclick="toggleStar(event)">☆</div>
                         <div class="word" id="en">Word</div>
-                        <div style="margin-top:15px; color:#CBD5E1; font-size:0.8rem;">탭하여 뒤집기</div>
+                        <div style="margin-top:15px; color:#CBD5E1; font-size:0.8rem;">Tap to flip</div>
                     </div>
                     <div class="card-face card-back">
                         <div class="star-toggle" id="starBack" onclick="toggleStar(event)">☆</div>
@@ -211,26 +263,52 @@
                     </div>
                 </div>
             </div>
+
+            <div class="swipe-hint">
+                <div class="hint-pill no">← Again</div>
+                <div class="hint-pill ok">Got it →</div>
+            </div>
             
             <div class="nav-bar">
-                <button class="nav-btn" onclick="prevCard()">← 이전</button>
-                <button class="nav-btn" onclick="nextCard()">다음 →</button>
+                <button class="nav-btn no" onclick="markNo()">✕ Again</button>
+                <button class="nav-btn ok" onclick="markOk()">○ Got it</button>
             </div>
         </div>
     </div>
 
+    <!-- 단어 목록 모달 -->
     <div id="word-list-modal" class="modal-overlay">
         <div class="modal-box">
             <div class="modal-header">
-                <h3>📖 전체 단어 목록</h3>
+                <h3>📖 Word List</h3>
                 <button onclick="closeWordListModal()">✕</button>
             </div>
-            <div class="modal-content" id="word-list-content">
-                <!-- JS로 내용 채워짐 -->
-            </div>
+            <div class="modal-content" id="word-list-content"></div>
         </div>
     </div>
 
+    <!-- 완료 모달 -->
+    <div id="complete-modal" class="overlay-modal">
+        <div class="modal-card">
+            <div class="emoji">🎉</div>
+            <h2>All Done!</h2>
+            <p id="complete-msg">You've mastered all the cards!</p>
+            <button class="modal-action-btn primary" onclick="restartSession()">🔄 Study Again</button>
+            <button class="modal-action-btn secondary" onclick="goBack()">← Back to Menu</button>
+        </div>
+    </div>
+
+    <!-- 일시정지 모달 -->
+    <div id="pause-modal" class="overlay-modal">
+        <div class="modal-card">
+            <div class="emoji">⏸</div>
+            <h2>Paused</h2>
+            <p id="pause-msg">Keep going?</p>
+            <button class="modal-action-btn primary" onclick="closePauseModal()">▶ Resume</button>
+            <button class="modal-action-btn secondary" onclick="restartSession()">🔄 Restart</button>
+            <button class="modal-action-btn danger" onclick="goBack()">✕ Quit</button>
+        </div>
+    </div>
 
     <script>
         const physData = {
@@ -240,17 +318,23 @@
             4: [{en:"interaction force",kr:"상호작용 힘"},{en:"net force",kr:"알짜힘"},{en:"uniform motion",kr:"등속 운동"},{en:"constant velocity linear motion",kr:"등속 직선 운동"},{en:"momentum",kr:"운동량"},{en:"inertia",kr:"관성"},{en:"inertial reference frame",kr:"관성 기준계"},{en:"inertial force",kr:"관성력"},{en:"tension, tensile force",kr:"장력"},{en:"contact force",kr:"접촉력"},{en:"action-at-a-distance force",kr:"원격 작용력"},{en:"pendulum",kr:"진자"},{en:"gravity, gravitational force",kr:"중력"},{en:"electroweak force",kr:"전자기약력"},{en:"electromagnetism",kr:"전자기력"},{en:"weak nuclear force",kr:"약한 핵력"},{en:"strong force",kr:"강력"},{en:"weight",kr:"무게"},{en:"apparent weightlessness",kr:"겉보기 무중력 상태"},{en:"free body diagram",kr:"자유 물체 도형"},{en:"apparent weight",kr:"겉보기 무게"},{en:"interaction force pair",kr:"상호작용 짝힘"},{en:"normal force",kr:"수직 항력"},{en:"elastic force",kr:"탄성력"},{en:"spring constant",kr:"용수철 상수"},{en:"spring scale",kr:"용수철 저울"}],
             5: [{en:"centripetal force",kr:"구심력"},{en:"centrifugal force",kr:"원심력"},{en:"friction, frictional force",kr:"마찰력"},{en:"static friction",kr:"정지 마찰력"},{en:"coefficient of static friction",kr:"정지 마찰 계수"},{en:"kinetic friction",kr:"운동 마찰력"},{en:"coefficient of kinetic friction",kr:"운동 마찰 계수"},{en:"drag force",kr:"끌림힘"},{en:"terminal speed",kr:"종단 속력"}],
             6: [{en:"mechanical energy",kr:"역학적 에너지"},{en:"potential energy",kr:"퍼텐셜 에너지"},{en:"internal energy",kr:"내부 에너지"},{en:"electromagnetic energy",kr:"전자기 에너지"},{en:"system",kr:"계"},{en:"work",kr:"일"},{en:"scalar product",kr:"스칼라곱"},{en:"dot product",kr:"점곱"},{en:"definite integral",kr:"정적분"},{en:"line integral",kr:"선적분"},{en:"work-kinetic energy theorem",kr:"일-운동 에너지 정리"},{en:"power",kr:"일률"}],
-            7: [{en:"conservative force",kr:"보존력"},{en:"non-conservative force",kr:"비보존력"},{en:"elastic potential energy",kr:"탄성 퍼텐셜 에너지"},{en:"gravitational field",kr:"중력장"},{en:"electric field",kr:"전기장"},{en:"thermal energy",kr:"열에너지"},{en:"electromagnetic radiation",kr:"전자기 복사"},{en:"conservation of mass-energy",kr:"질량-에너지 보존"},{en:"potential energy curve",kr:"퍼텐셜 에너지 곡선"},{en:"potential barrier",kr:"퍼텐셜 장벽"},{en:"potential well",kr:"퍼텐셜 우물"},{en:"bound system",kr:"속박계"}],
+            7: [{en:"conservation force, conservative force",kr:"보존력"},{en:"non-conservative force",kr:"비보존력"},{en:"elastic potential energy",kr:"탄성 퍼텐셜 에너지"},{en:"gravitational field",kr:"중력장"},{en:"electric field",kr:"전기장"},{en:"thermal energy",kr:"열에너지"},{en:"electromagnetic radiation",kr:"전자기 복사"},{en:"conservation of mass-energy",kr:"질량-에너지 보존"},{en:"potential energy curve",kr:"퍼텐셜 에너지 곡선"},{en:"potential barrier",kr:"퍼텐셜 장벽"},{en:"potential well",kr:"퍼텐셜 우물"},{en:"bound system",kr:"속박계"}],
             8: [{en:"constant of universal gravitation",kr:"만유인력 상수"},{en:"circular orbit",kr:"원형 궤도"},{en:"orbital period",kr:"궤도 주기"},{en:"perihelion",kr:"근일점"},{en:"aphelion",kr:"원일점"},{en:"escape speed",kr:"탈출 속력"}],
             9: [{en:"center of mass",kr:"질량 중심"},{en:"external force",kr:"알짜 외력"},{en:"mass element",kr:"질량 요소"},{en:"conservation of linear momentum",kr:"선운동량 보존"},{en:"kinetic energy of center of mass",kr:"질량 중심의 운동 에너지"},{en:"internal kinetic energy",kr:"내부 운동 에너지"},{en:"impulse",kr:"충격량"},{en:"totally inelastic collision",kr:"완전 비탄성 충돌"},{en:"elastic collision",kr:"탄성 충돌"},{en:"impact parameter",kr:"충격 변수"}]
         };
 
         let starredWords = JSON.parse(localStorage.getItem('physStars') || '[]');
+        // activeQueue: 남은 카드 큐
         let activeQueue = [];
-        let currentIndex = 0;
+        // 총 카드 수 (진행바용)
+        let totalCount = 0;
         let isFlipped = false;
+        let lastChapterNum = null;
+        let isFavMode = false;
 
         const wordListModal = document.getElementById('word-list-modal');
+        const completeModal = document.getElementById('complete-modal');
+        const pauseModal = document.getElementById('pause-modal');
 
         setTimeout(() => document.getElementById('intro-screen').classList.add('hidden'), 1000);
 
@@ -274,27 +358,34 @@
         }
 
         function startChapter(num) {
+            lastChapterNum = num;
+            isFavMode = false;
             activeQueue = physData[num].map((d, i) => ({ ...d, id: `phys-${num}-${i}` }));
-            // [변경] 단어 목록을 무작위로 섞음
             activeQueue.sort(() => Math.random() - 0.5);
-            currentIndex = 0;
+            totalCount = activeQueue.length;
             document.getElementById('stage-info').innerText = `Chapter ${num}`;
             initGame();
         }
 
         function startFavorites() {
-            if (starredWords.length === 0) { alert("별표를 누른 단어가 없습니다."); return; }
+            if (starredWords.length === 0) { alert("No starred words yet. Star some cards first!"); return; }
+            isFavMode = true;
             activeQueue = [];
             starredWords.forEach(sid => {
                 const p = sid.split('-');
                 const ch = p[1], idx = p[2];
                 if(physData[ch] && physData[ch][idx]) activeQueue.push({ ...physData[ch][idx], id: sid });
             });
-            // [변경] 즐겨찾기 목록도 무작위로 섞음
             activeQueue.sort(() => Math.random() - 0.5);
-            currentIndex = 0;
+            totalCount = activeQueue.length;
             document.getElementById('stage-info').innerText = "Review Starred";
             initGame();
+        }
+
+        function restartSession() {
+            completeModal.classList.remove('visible');
+            if (isFavMode) startFavorites();
+            else if (lastChapterNum) startChapter(lastChapterNum);
         }
         
         function openWordListModal() {
@@ -304,7 +395,6 @@
                 const chapterTitle = document.createElement('h4');
                 chapterTitle.innerText = `Chapter ${chapter}`;
                 content.appendChild(chapterTitle);
-
                 const table = document.createElement('table');
                 let tableBody = '';
                 physData[chapter].forEach(word => {
@@ -322,25 +412,31 @@
             setTimeout(() => wordListModal.style.display = 'none', 300);
         }
 
-
         function initGame() {
             updateCard();
+            updateProgress();
             showPage('game-page');
         }
 
+        function updateProgress() {
+            const remaining = activeQueue.length;
+            const done = totalCount - remaining;
+            const pct = totalCount > 0 ? (done / totalCount) * 100 : 0;
+            document.getElementById('progressFill').style.width = pct + '%';
+            document.getElementById('queue-count').innerText = `${remaining} left`;
+        }
+
         function updateCard() {
-            if (activeQueue.length === 0) { 
-                alert("단어 목록이 비어 있습니다."); 
-                goBack(); 
-                return; 
+            if (activeQueue.length === 0) {
+                showComplete();
+                return;
             }
             
-            const currentCard = activeQueue[currentIndex];
-            document.getElementById('en').innerText = currentCard.en;
-            document.getElementById('kr').innerText = currentCard.kr;
-            document.getElementById('queue-count').innerText = `${currentIndex + 1} / ${activeQueue.length}`;
+            const card = activeQueue[0];
+            document.getElementById('en').innerText = card.en;
+            document.getElementById('kr').innerText = card.kr;
             
-            const isS = starredWords.includes(currentCard.id);
+            const isS = starredWords.includes(card.id);
             document.getElementById('starFront').innerText = isS ? "★" : "☆";
             document.getElementById('starBack').innerText = isS ? "★" : "☆";
             document.getElementById('starFront').classList.toggle('active', isS);
@@ -349,34 +445,50 @@
             resetCardUI();
         }
 
-        function prevCard() {
-            if (currentIndex > 0) {
-                currentIndex--;
-                animateCardChange('left');
-            } else {
-                alert("첫 번째 단어입니다.");
-            }
+        function showComplete() {
+            const doneCount = totalCount;
+            document.getElementById('complete-msg').innerText = `You cleared all ${doneCount} cards! 🎓`;
+            completeModal.classList.add('visible');
         }
 
-        function nextCard() {
-            if (currentIndex < activeQueue.length - 1) {
-                currentIndex++;
-                animateCardChange('right');
-            } else {
-                alert("마지막 단어입니다! 수고하셨습니다.");
-                goBack();
-            }
+        function openPauseModal() {
+            const remaining = activeQueue.length;
+            const done = totalCount - remaining;
+            document.getElementById('pause-msg').innerText = `${done} / ${totalCount} cards done.`;
+            pauseModal.classList.add('visible');
+        }
+
+        function closePauseModal() {
+            pauseModal.classList.remove('visible');
+        }
+
+        // O: 학습 완료 → 큐에서 제거
+        function markOk() {
+            if (activeQueue.length === 0) return;
+            activeQueue.shift(); // 첫 번째 카드 제거
+            updateProgress();
+            animateCardChange('ok');
+        }
+
+        // X: 다시 복습 → 맨 뒤로 이동
+        function markNo() {
+            if (activeQueue.length === 0) return;
+            const card = activeQueue.shift();
+            activeQueue.push(card); // 맨 뒤로
+            // totalCount는 유지 (남은 개수 변화 없음, 진행바 변화 없음)
+            animateCardChange('no');
         }
 
         function toggleStar(e) {
             e.stopPropagation();
-            const currentCard = activeQueue[currentIndex];
-            const idx = starredWords.indexOf(currentCard.id);
+            if (activeQueue.length === 0) return;
+            const card = activeQueue[0];
+            const idx = starredWords.indexOf(card.id);
             if (idx > -1) starredWords.splice(idx, 1);
-            else starredWords.push(currentCard.id);
+            else starredWords.push(card.id);
             localStorage.setItem('physStars', JSON.stringify(starredWords));
             
-            const isS = starredWords.includes(currentCard.id);
+            const isS = starredWords.includes(card.id);
             document.getElementById('starFront').innerText = isS ? "★" : "☆";
             document.getElementById('starBack').innerText = isS ? "★" : "☆";
             document.getElementById('starFront').classList.toggle('active', isS);
@@ -384,6 +496,8 @@
         }
 
         function goBack() { 
+            completeModal.classList.remove('visible');
+            pauseModal.classList.remove('visible');
             renderLobby(); 
             showPage('lobby-page'); 
         }
@@ -436,6 +550,7 @@
             isDragging = false;
             let dx = currentX - startX;
 
+            // 탭: 카드 뒤집기
             if (Math.abs(dx) < 15) {
                 isFlipped = !isFlipped;
                 ci.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
@@ -445,52 +560,54 @@
                 return;
             }
 
+            // 스와이프
             if (Math.abs(dx) > 80) {
-                if (dx > 0) { 
-                    if (currentIndex < activeQueue.length - 1) {
-                        currentIndex++;
-                        animateCardChange('right', dx);
-                    } else {
-                        alert("마지막 단어입니다.");
-                        cw.style.transition = 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-                        cw.style.transform = 'translateX(0) rotate(0)';
-                    }
-                } else { 
-                    if (currentIndex > 0) {
-                        currentIndex--;
-                        animateCardChange('left', dx);
-                    } else {
-                        alert("첫 번째 단어입니다.");
-                        cw.style.transition = 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-                        cw.style.transform = 'translateX(0) rotate(0)';
-                    }
+                if (dx > 0) {
+                    // 오른쪽 → O: 완료
+                    markOkWithAnim(dx);
+                } else {
+                    // 왼쪽 → X: 다시
+                    markNoWithAnim(dx);
                 }
             } else {
+                // 스와이프 부족 → 원위치
                 cw.style.transition = 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
                 cw.style.transform = 'translateX(0) rotate(0)';
             }
         });
 
-        function animateCardChange(direction, currentDx = 0) {
-            const destX = direction === 'right' ? window.innerWidth + 200 : -window.innerWidth - 200;
-            const destRotate = direction === 'right' ? 30 : -30;
-            
+        function markOkWithAnim(dx) {
+            activeQueue.shift();
+            updateProgress();
+            const destX = window.innerWidth + 200;
             cw.style.transition = 'transform 0.25s ease-out';
-            cw.style.transform = `translateX(${destX}px) rotate(${destRotate}deg)`;
+            cw.style.transform = `translateX(${destX}px) rotate(30deg)`;
+            setTimeout(() => updateCard(), 250);
+        }
 
-            setTimeout(() => {
-                updateCard();
-            }, 250); 
+        function markNoWithAnim(dx) {
+            const card = activeQueue.shift();
+            activeQueue.push(card);
+            const destX = -window.innerWidth - 200;
+            cw.style.transition = 'transform 0.25s ease-out';
+            cw.style.transform = `translateX(${destX}px) rotate(-30deg)`;
+            setTimeout(() => updateCard(), 250);
+        }
+
+        function animateCardChange(type) {
+            const destX = type === 'ok' ? window.innerWidth + 200 : -window.innerWidth - 200;
+            const rot = type === 'ok' ? 30 : -30;
+            cw.style.transition = 'transform 0.25s ease-out';
+            cw.style.transform = `translateX(${destX}px) rotate(${rot}deg)`;
+            setTimeout(() => updateCard(), 250);
         }
 
         function resetCardUI() {
             isFlipped = false;
             ci.style.transition = 'none'; 
             ci.classList.remove('flipped');
-            
             cw.style.transition = 'none';
             cw.style.transform = 'translateX(0) rotate(0)';
-            
             void cw.offsetWidth; 
         }
     </script>
