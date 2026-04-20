@@ -1,6 +1,6 @@
 {
-  "name": "AP 영단어 정복",
-  "short_name": "AP 영단어",
+  "name": "박동성의 영단어"
+  "short_name": "박동성의 영단어",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffffff",
