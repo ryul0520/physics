@@ -30,7 +30,7 @@
             overscroll-behavior: none; 
         }
 
-        /* 인트로 */
+        /* (이하 모든 CSS는 이전과 동일) */
         #intro-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--primary); z-index: 10000;
@@ -38,19 +38,13 @@
             color: white; transition: opacity 0.4s ease-out, visibility 0.4s;
         }
         #intro-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-
-        /* 페이지 공통 */
         .page { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; flex-direction: column; z-index: 10; background: var(--bg); }
         .page.active { display: flex; }
-
-        /* 헤더 */
         .header {
             padding: 12px 20px; background: white; display: flex; 
             justify-content: space-between; align-items: center; 
             border-bottom: 1px solid #e2e8f0; font-weight: 800;
         }
-
-        /* 로비 */
         .lobby-content { 
             flex: 1; overflow-y: auto; padding: 20px; max-width: 900px; margin: 0 auto; width: 100%; 
             touch-action: pan-y;
@@ -68,7 +62,6 @@
         }
         .stage-btn:active { background: #f1f5f9; transform: scale(0.95); }
         .stage-btn b { font-size: 1.2rem; color: var(--primary); margin-top: 4px; }
-        
         .tool-btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 25px; }
         .tool-btn {
             background: white; border: 1px solid #e2e8f0; border-radius: 12px;
@@ -76,7 +69,6 @@
             cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px;
         }
         .tool-btn:active { background: #f1f5f9; transform: scale(0.98); }
-
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.5); z-index: 2000;
@@ -107,15 +99,12 @@
         .modal-content td { padding: 8px; border-bottom: 1px solid #f1f5f9; }
         .modal-content td:first-child { font-weight: 600; color: #1e293b; width: 55%; }
         .modal-content td:last-child { color: #64748b; }
-
-        /* 카드 게임 */
         #game-page { touch-action: none; }
         .game-container { 
             flex: 1; display: flex; flex-direction: column; justify-content: center; 
             align-items: center; perspective: 1200px; padding-bottom: 80px; position: relative; 
             overflow: hidden;
         }
-        
         #bg-overlay { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
             z-index: 1; pointer-events: none; opacity: 0; 
@@ -126,7 +115,6 @@
             font-size: 15rem; font-weight: 900; opacity: 0.3; color: white; 
             transform: scale(0.5); transition: transform 0.3s;
         }
-
         .card-wrapper { 
             width: 85%; max-width: 360px; height: 50vh; max-height: 450px; 
             transform-style: preserve-3d; z-index: 5; touch-action: none;
@@ -146,10 +134,8 @@
         .card-back { background: var(--card-dark); color: white; transform: rotateY(180deg); }
         .word { font-size: 2.2rem; font-weight: 800; margin-bottom: 8px; word-break: keep-all; }
         .meaning { font-size: 1.8rem; font-weight: 700; color: var(--star-color); }
-        
         .star-toggle { position: absolute; top: 20px; right: 20px; font-size: 2.2rem; color: #E2E8F0; z-index: 100; padding: 10px; cursor: pointer; }
         .star-toggle.active { color: var(--star-color); }
-
         .nav-bar { 
             position: absolute; bottom: 30px; width: 100%; max-width: 400px;
             display: flex; justify-content: space-between; padding: 0 30px;
@@ -245,6 +231,23 @@
             9: [{en:"center of mass",kr:"질량 중심"},{en:"external force",kr:"알짜 외력"},{en:"mass element",kr:"질량 요소"},{en:"conservation of linear momentum",kr:"선운동량 보존"},{en:"kinetic energy of center of mass",kr:"질량 중심의 운동 에너지"},{en:"internal kinetic energy",kr:"내부 운동 에너지"},{en:"impulse",kr:"충격량"},{en:"totally inelastic collision",kr:"완전 비탄성 충돌"},{en:"elastic collision",kr:"탄성 충돌"},{en:"impact parameter",kr:"충격 변수"}]
         };
 
+        // --- [추가된 PWA 업데이트 코드] ---
+        // 이 코드는 localStorage를 사용하므로 서비스워커(sw.js)가 아닌 메인 스크립트(여기)에 있어야 합니다.
+        const UPDATE_ID = "2024-05-PHYSICS-RESET-1"; // 이 앱을 위한 고유 ID
+        const lastUpdate = localStorage.getItem("lastUpdateId");
+
+        if (lastUpdate !== UPDATE_ID) {
+            console.log("📌 새로운 업데이트를 감지하여 1회성 작업을 실행합니다.");
+
+            // PHYSICS MASTER 앱에서는 즐겨찾기 목록('physStars')을 초기화합니다.
+            localStorage.removeItem("physStars");
+            
+            // 업데이트 완료 기록 (다음 방문 시에는 실행되지 않도록)
+            localStorage.setItem("lastUpdateId", UPDATE_ID);
+        }
+        // --- [코드 추가 끝] ---
+
+
         let starredWords = JSON.parse(localStorage.getItem('physStars') || '[]');
         let activeQueue = [];
         let currentIndex = 0;
@@ -275,7 +278,6 @@
 
         function startChapter(num) {
             activeQueue = physData[num].map((d, i) => ({ ...d, id: `phys-${num}-${i}` }));
-            // [변경] 단어 목록을 무작위로 섞음
             activeQueue.sort(() => Math.random() - 0.5);
             currentIndex = 0;
             document.getElementById('stage-info').innerText = `Chapter ${num}`;
@@ -290,7 +292,6 @@
                 const ch = p[1], idx = p[2];
                 if(physData[ch] && physData[ch][idx]) activeQueue.push({ ...physData[ch][idx], id: sid });
             });
-            // [변경] 즐겨찾기 목록도 무작위로 섞음
             activeQueue.sort(() => Math.random() - 0.5);
             currentIndex = 0;
             document.getElementById('stage-info').innerText = "Review Starred";
