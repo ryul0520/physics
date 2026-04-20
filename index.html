@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PHYSICS VOCAB MASTER</title>
+    <title>PHYSICS MASTER</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#9013FE">
@@ -12,9 +12,9 @@
     <style>
         :root {
             --primary: #9013FE;
-            --bg: #F5F7FA;
-            --card-dark: #2C3E50;
-            --star-color: #FFD700;
+            --bg: #F8FAFC;
+            --card-dark: #1E293B;
+            --star-color: #FAC827;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -30,7 +30,7 @@
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--primary); z-index: 10000;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            color: white; transition: opacity 0.5s ease-out, visibility 0.5s;
+            color: white; transition: opacity 0.4s ease-out, visibility 0.4s;
         }
         #intro-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
 
@@ -40,80 +40,76 @@
 
         /* 헤더 */
         .header {
-            padding: 15px 25px; background: white; display: flex; 
+            padding: 12px 20px; background: white; display: flex; 
             justify-content: space-between; align-items: center; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05); font-weight: 800;
+            border-bottom: 1px solid #e2e8f0; font-weight: 800;
         }
 
-        /* 로비/그리드 (패드 최적화) */
-        .lobby-content { flex: 1; overflow-y: auto; padding: 25px; }
-        .grid-title { font-size: 1.1rem; color: #666; margin-bottom: 15px; padding-left: 5px; }
+        /* 로비 (패드 최적화) */
+        .lobby-content { flex: 1; overflow-y: auto; padding: 20px; max-width: 900px; margin: 0 auto; width: 100%; }
         .stage-grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); /* 패드에서 적절한 크기 */
-            gap: 15px; 
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); /* 패드에서 더 작고 촘촘하게 */
+            gap: 12px; 
         }
         .stage-btn { 
-            background: white; border: 1px solid #eee; height: 100px; /* 높이 축소 */
-            border-radius: 16px; font-size: 1rem; font-weight: 700; color: #333;
+            background: white; border: 1px solid #e2e8f0; height: 80px; /* 높이 대폭 축소 */
+            border-radius: 12px; font-size: 0.9rem; font-weight: 700; color: #334155;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.02); cursor: pointer; transition: transform 0.2s;
+            cursor: pointer; transition: all 0.2s;
         }
-        .stage-btn:active { transform: scale(0.95); }
-        .stage-btn span { font-size: 0.8rem; color: var(--primary); margin-bottom: 5px; }
+        .stage-btn:active { background: #f1f5f9; transform: scale(0.95); }
+        .stage-btn b { font-size: 1.2rem; color: var(--primary); }
 
         /* 즐겨찾기 버튼 */
         .fav-main-btn {
-            background: white; border: 2px solid var(--star-color); 
-            border-radius: 16px; padding: 15px; margin-bottom: 30px;
+            background: #FFFBEB; border: 1px solid #FEF3C7; 
+            border-radius: 12px; padding: 18px; margin-bottom: 25px;
             display: flex; justify-content: center; align-items: center; gap: 10px;
-            font-weight: 800; color: #555; cursor: pointer;
+            font-weight: 800; color: #92400E; cursor: pointer;
         }
 
         /* 카드 게임 */
-        .game-container { flex: 1; display: flex; justify-content: center; align-items: center; perspective: 1200px; padding-bottom: 60px; }
-        .card-wrapper { width: 90%; max-width: 400px; height: 55vh; transform-style: preserve-3d; transition: transform 0.1s; }
-        .card-inner { width: 100%; height: 100%; position: relative; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; }
+        .game-container { flex: 1; display: flex; justify-content: center; align-items: center; perspective: 1200px; padding-bottom: 40px; }
+        .card-wrapper { width: 85%; max-width: 360px; height: 50vh; max-height: 450px; transform-style: preserve-3d; }
+        .card-inner { width: 100%; height: 100%; position: relative; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; cursor: pointer; }
         .card-inner.flipped { transform: rotateY(180deg); }
         .card-face { 
             position: absolute; width: 100%; height: 100%; backface-visibility: hidden; 
-            border-radius: 30px; display: flex; flex-direction: column; align-items: center; 
-            justify-content: center; padding: 30px; text-align: center; box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+            border-radius: 24px; display: flex; flex-direction: column; align-items: center; 
+            justify-content: center; padding: 25px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            border: 1px solid rgba(0,0,0,0.05);
         }
-        .card-front { background: white; color: var(--primary); border: 1px solid #eee; }
+        .card-front { background: white; color: #1E293B; }
         .card-back { background: var(--card-dark); color: white; transform: rotateY(180deg); }
-        .word { font-size: 2.5rem; font-weight: 800; margin-bottom: 10px; word-break: keep-all; }
-        .meaning { font-size: 2rem; font-weight: 700; color: var(--star-color); }
+        .word { font-size: 2.2rem; font-weight: 800; margin-bottom: 8px; word-break: keep-all; }
+        .meaning { font-size: 1.8rem; font-weight: 700; color: var(--star-color); }
         
-        .star-toggle { position: absolute; top: 25px; right: 25px; font-size: 2.5rem; color: #ddd; cursor: pointer; z-index: 100; }
+        .star-toggle { position: absolute; top: 20px; right: 20px; font-size: 2.2rem; color: #E2E8F0; z-index: 100; }
         .star-toggle.active { color: var(--star-color); }
 
-        /* 하단 가이드 */
-        .swipe-guide { position: absolute; bottom: 30px; width: 100%; display: flex; justify-content: space-around; color: #aaa; font-size: 0.9rem; font-weight: 600; }
-
-        /* 결과 */
-        .result-page { justify-content: center; align-items: center; text-align: center; }
+        /* 가이드 */
+        .swipe-guide { position: absolute; bottom: 25px; width: 100%; display: flex; justify-content: space-around; color: #94A3B8; font-size: 0.85rem; font-weight: 600; }
     </style>
 </head>
 <body>
 
     <div id="intro-screen">
-        <div style="font-size: 5rem; margin-bottom: 20px;">⚛️</div>
-        <div style="font-size: 2.5rem; font-weight: 900;">PHYSICS MASTER</div>
+        <div style="font-size: 4rem; margin-bottom: 10px;">⚛️</div>
+        <div style="font-size: 2rem; font-weight: 900;">PHYSICS MASTER</div>
     </div>
 
     <!-- 로비 -->
     <div id="lobby-page" class="page active">
         <div class="header">
-            <span>PHYSICS MASTER</span>
-            <span id="total-stars" style="color:var(--star-color);">⭐ 0</span>
+            <span style="color:var(--primary)">PHYSICS MASTER</span>
+            <span id="total-stars" style="color:var(--star-color); background:#FFFBEB; padding:4px 10px; border-radius:20px; font-size:0.9rem;">⭐ 0</span>
         </div>
         <div class="lobby-content">
             <div class="fav-main-btn" onclick="startFavorites()">
-                <span>⭐</span> 즐겨찾기 단어만 복습하기
+                <span>⭐</span> 즐겨찾기 단어 복습하기
             </div>
-            
-            <div class="grid-title">Chapters</div>
+            <div style="font-size: 0.9rem; color: #64748B; margin-bottom: 10px; font-weight: 700;">Chapters</div>
             <div class="stage-grid" id="stageGrid"></div>
         </div>
     </div>
@@ -121,19 +117,19 @@
     <!-- 게임 -->
     <div id="game-page" class="page">
         <div class="header">
-            <button onclick="goBack()" style="background:none; border:none; font-size:1.5rem;">✕</button>
-            <div id="stage-info">Chapter 1</div>
-            <span id="queue-count" style="color:var(--primary);">0/0</span>
+            <button onclick="goBack()" style="background:none; border:none; font-size:1.4rem; color:#64748B;">✕</button>
+            <div id="stage-info" style="font-size:1rem;">Chapter 1</div>
+            <span id="queue-count" style="color:var(--primary); font-variant-numeric: tabular-nums;">0 / 0</span>
         </div>
         <div class="game-container">
             <div class="card-wrapper" id="cardWrapper">
                 <div class="card-inner" id="cardInner">
-                    <div class="card-face card-front" onclick="flipCard()">
+                    <div class="card-face card-front">
                         <div class="star-toggle" id="starFront" onclick="toggleStar(event)">☆</div>
                         <div class="word" id="en">Word</div>
-                        <div style="margin-top:20px; color:#ccc; font-size:0.9rem;">탭하여 뜻 보기</div>
+                        <div style="margin-top:15px; color:#CBD5E1; font-size:0.8rem;">탭하여 뒤집기</div>
                     </div>
-                    <div class="card-face card-back" onclick="flipCard()">
+                    <div class="card-face card-back">
                         <div class="star-toggle" id="starBack" onclick="toggleStar(event)">☆</div>
                         <div class="meaning" id="kr">Meaning</div>
                     </div>
@@ -141,8 +137,8 @@
             </div>
         </div>
         <div class="swipe-guide">
-            <span>← 다시보기 (넘기기)</span>
-            <span>완료 (넘기기) →</span>
+            <span>← 모름 (뒤로보내기)</span>
+            <span>앎 (제거) →</span>
         </div>
     </div>
 
@@ -151,7 +147,7 @@
             1: [{en:"physics",kr:"물리학"},{en:"mechanics",kr:"역학"},{en:"wave motion",kr:"파동"},{en:"thermodynamics",kr:"열역학"},{en:"electromagnetism",kr:"전자기학"},{en:"optics",kr:"광학"},{en:"quantum mechanics",kr:"양자역학"},{en:"modern physics",kr:"현대물리학"},{en:"theory of relativity",kr:"상대성이론"},{en:"metric system",kr:"단위계"},{en:"operational definition",kr:"조작적 정의"},{en:"explicit-constant",kr:"명시적 상수"},{en:"time",kr:"시간"},{en:"length",kr:"길이"},{en:"mass",kr:"질량"},{en:"scientific notation",kr:"과학적 표기법"},{en:"significant figure",kr:"유효 숫자"}],
             2: [{en:"horizontal plane",kr:"수평면"},{en:"vertical",kr:"수직, 연직"},{en:"kinematics",kr:"운동학"},{en:"average speed",kr:"평균 속력"},{en:"displacement",kr:"변위"},{en:"average velocity",kr:"평균 속도"},{en:"coordinate system",kr:"좌표계"},{en:"instantaneous velocity",kr:"순간 속도"},{en:"instantaneous speed",kr:"순간 속력"},{en:"derivative",kr:"도함수"},{en:"infinitesimal",kr:"무한소"},{en:"acceleration",kr:"가속도"},{en:"average acceleration",kr:"평균 가속도"},{en:"second derivative",kr:"이계 도함수"},{en:"constant acceleration",kr:"등가속도"},{en:"uniformly accelerated motion",kr:"등가속도 운동"},{en:"equation of motion",kr:"운동 방정식"},{en:"gravitational acceleration",kr:"중력 가속도"},{en:"free fall",kr:"자유 낙하"},{en:"initial condition",kr:"초기 조건"}],
             3: [{en:"air resistance",kr:"공기 저항"},{en:"position vector",kr:"위치 벡터"},{en:"displacement vector",kr:"변위 벡터"},{en:"vector addition",kr:"벡터 더하기"},{en:"component",kr:"성분"},{en:"Cartesian coordinate system",kr:"데카르트 좌표계"},{en:"rectangular coordinate system",kr:"직각 좌표계"},{en:"unit vector",kr:"단위 벡터"},{en:"frame of reference",kr:"기준틀"},{en:"projectile",kr:"발사체"},{en:"trajectory",kr:"궤적"},{en:"horizontal range",kr:"수평 도달 거리"},{en:"uniform circular motion",kr:"등속 원운동"},{en:"centripetal acceleration",kr:"구심 가속도"},{en:"radial acceleration",kr:"지름 가속도"},{en:"tangential acceleration",kr:"접선 가속도"},{en:"radius of curvature",kr:"곡률 반지름"}],
-            4: [{en:"interaction force",kr:"상호작용 힘"},{en:"net force",kr:"알짜힘"},{en:"uniform motion",kr:"등속 운동"},{en:"constant velocity linear motion",kr:"등속 직선 운동"},{en:"momentum",kr:"운동량"},{en:"inertia",kr:"관성"},{en:"inertial reference frame",kr:"관성 기준계"},{en:"inertial force",kr:"관성력"},{en:"장력",kr:"tension"},{en:"접촉력",kr:"contact force"},{en:"원격 작용력",kr:"action-at-a-distance force"},{en:"진자",kr:"pendulum"},{en:"중력",kr:"gravity"},{en:"전자기약력",kr:"electroweak force"},{en:"전자기력",kr:"electromagnetism"},{en:"약한 핵력",kr:"weak nuclear force"},{en:"강력",kr:"strong force"},{en:"무게",kr:"weight"},{en:"겉보기 무중력 상태",kr:"apparent weightlessness"},{en:"자유 물체 도형",kr:"free body diagram"},{en:"겉보기 무게",kr:"apparent weight"},{en:"상호작용 짝힘",kr:"interaction force pair"},{en:"수직 항력",kr:"normal force"},{en:"탄성력",kr:"elastic force"},{en:"용수철 상수",kr:"spring constant"},{en:"용수철 저울",kr:"spring scale"}],
+            4: [{en:"interaction force",kr:"상호작용 힘"},{en:"net force",kr:"알짜힘"},{en:"uniform motion",kr:"등속 운동"},{en:"constant velocity linear motion",kr:"등속 직선 운동"},{en:"momentum",kr:"운동량"},{en:"inertia",kr:"관성"},{en:"inertial reference frame",kr:"관성 기준계"},{en:"inertial force",kr:"관성력"},{en:"tension",kr:"장력"},{en:"contact force",kr:"접촉력"},{en:"action-at-a-distance force",kr:"원격 작용력"},{en:"pendulum",kr:"진자"},{en:"gravity",kr:"중력"},{en:"electroweak force",kr:"전자기약력"},{en:"electromagnetism",kr:"전자기력"},{en:"weak nuclear force",kr:"약한 핵력"},{en:"strong force",kr:"강력"},{en:"weight",kr:"무게"},{en:"apparent weightlessness",kr:"겉보기 무중력 상태"},{en:"free body diagram",kr:"자유 물체 도형"},{en:"apparent weight",kr:"겉보기 무게"},{en:"상호작용 짝힘",kr:"interaction force pair"},{en:"normal force",kr:"수직 항력"},{en:"elastic force",kr:"탄성력"},{en:"spring constant",kr:"용수철 상수"},{en:"spring scale",kr:"용수철 저울"}],
             5: [{en:"centripetal force",kr:"구심력"},{en:"centrifugal force",kr:"원심력"},{en:"friction",kr:"마찰력"},{en:"static friction",kr:"정지 마찰력"},{en:"coefficient of static friction",kr:"정지 마찰 계수"},{en:"kinetic friction",kr:"운동 마찰력"},{en:"coefficient of kinetic friction",kr:"운동 마찰 계수"},{en:"drag force",kr:"끌림힘"},{en:"terminal speed",kr:"종단 속력"}],
             6: [{en:"mechanical energy",kr:"역학적 에너지"},{en:"potential energy",kr:"퍼텐셜 에너지"},{en:"internal energy",kr:"내부 에너지"},{en:"electromagnetic energy",kr:"전자기 에너지"},{en:"system",kr:"계"},{en:"work",kr:"일"},{en:"scalar product",kr:"스칼라곱"},{en:"dot product",kr:"점곱"},{en:"definite integral",kr:"정적분"},{en:"line integral",kr:"선적분"},{en:"work-kinetic energy theorem",kr:"일-운동 에너지 정리"},{en:"power",kr:"일률"}],
             7: [{en:"conservation force",kr:"보존력"},{en:"non-conservative force",kr:"비보존력"},{en:"elastic potential energy",kr:"탄성 퍼텐셜 에너지"},{en:"gravitational field",kr:"중력장"},{en:"electric field",kr:"전기장"},{en:"thermal energy",kr:"열에너지"},{en:"electromagnetic radiation",kr:"전자기 복사"},{en:"conservation of mass-energy",kr:"질량-에너지 보존"},{en:"potential energy curve",kr:"퍼텐셜 에너지 곡선"},{en:"potential barrier",kr:"퍼텐셜 장벽"},{en:"potential well",kr:"퍼텐셜 우물"},{en:"bound system",kr:"속박계"}],
@@ -162,10 +158,8 @@
         let starredWords = JSON.parse(localStorage.getItem('physStars') || '[]');
         let activeQueue = [], currentCard = null, isFlipped = false;
 
-        // 인트로 제거
-        setTimeout(() => document.getElementById('intro-screen').classList.add('hidden'), 1500);
+        setTimeout(() => document.getElementById('intro-screen').classList.add('hidden'), 1200);
 
-        // 로비 렌더링
         function renderLobby() {
             const grid = document.getElementById('stageGrid');
             grid.innerHTML = '';
@@ -199,7 +193,7 @@
                 const ch = p[1], idx = p[2];
                 if(physData[ch] && physData[ch][idx]) activeQueue.push({ ...physData[ch][idx], id: sid });
             });
-            document.getElementById('stage-info').innerText = "Favorites";
+            document.getElementById('stage-info').innerText = "Review Starred";
             initGame();
         }
 
@@ -209,11 +203,11 @@
         }
 
         function updateCard() {
-            if (activeQueue.length === 0) { alert("모든 단어를 학습했습니다!"); goBack(); return; }
+            if (activeQueue.length === 0) { alert("학습이 완료되었습니다!"); goBack(); return; }
             currentCard = activeQueue[0];
             document.getElementById('en').innerText = currentCard.en;
             document.getElementById('kr').innerText = currentCard.kr;
-            document.getElementById('queue-count').innerText = activeQueue.length;
+            document.getElementById('queue-count').innerText = `${activeQueue.length} left`;
             
             const isS = starredWords.includes(currentCard.id);
             document.getElementById('starFront').innerText = isS ? "★" : "☆";
@@ -224,11 +218,6 @@
             resetCardUI();
         }
 
-        function flipCard() {
-            isFlipped = !isFlipped;
-            document.getElementById('cardInner').classList.toggle('flipped', isFlipped);
-        }
-
         function toggleStar(e) {
             e.stopPropagation();
             const idx = starredWords.indexOf(currentCard.id);
@@ -236,25 +225,26 @@
             else starredWords.push(currentCard.id);
             localStorage.setItem('physStars', JSON.stringify(starredWords));
             updateCard();
-            document.getElementById('total-stars').innerText = `⭐ ${starredWords.length}`;
         }
 
         function goBack() { renderLobby(); showPage('lobby-page'); }
 
-        // 드래그 제스처
+        // --- 드래그 및 클릭 로직 분리 ---
         const cw = document.getElementById('cardWrapper');
+        const ci = document.getElementById('cardInner');
         let startX = 0, currentX = 0, isDragging = false;
 
         cw.addEventListener('touchstart', e => {
             isDragging = true; startX = e.touches[0].clientX;
-            cw.style.transition = 'none';
+            ci.style.transition = 'none';
         });
 
         cw.addEventListener('touchmove', e => {
             if (!isDragging) return;
             currentX = e.touches[0].clientX;
             let dx = currentX - startX;
-            cw.style.transform = `translateX(${dx}px) rotate(${dx * 0.05}deg)`;
+            // 카드 이동 및 약간의 회전 효과
+            cw.style.transform = `translateX(${dx}px) rotate(${dx * 0.03}deg)`;
         });
 
         cw.addEventListener('touchend', e => {
@@ -262,25 +252,33 @@
             isDragging = false;
             let dx = currentX - startX;
 
-            if (Math.abs(dx) > 120) {
-                // 오른쪽 스와이프 (완료/제거)
-                if (dx > 0) {
+            // 1. 단순 클릭으로 판단될 만큼 적게 움직였을 때 (뒤집기)
+            if (Math.abs(dx) < 20) {
+                isFlipped = !isFlipped;
+                ci.style.transition = 'transform 0.5s';
+                ci.classList.toggle('flipped', isFlipped);
+                cw.style.transform = 'translateX(0)';
+                return;
+            }
+
+            // 2. 스와이프로 판단될 때 (단어 넘기기)
+            if (Math.abs(dx) > 100) {
+                if (dx > 0) { // 오른쪽: 앎 (제거)
                     activeQueue.shift();
-                } 
-                // 왼쪽 스와이프 (다시보기/뒤로보내기)
-                else {
+                } else { // 왼쪽: 모름 (뒤로 보내기)
                     activeQueue.push(activeQueue.shift());
                 }
                 updateCard();
             } else {
-                cw.style.transition = '0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                // 스와이프가 충분하지 않으면 제자리로
+                cw.style.transition = '0.3s';
                 cw.style.transform = 'translateX(0)';
             }
         });
 
         function resetCardUI() {
             isFlipped = false;
-            document.getElementById('cardInner').classList.remove('flipped');
+            ci.classList.remove('flipped');
             cw.style.transition = 'none';
             cw.style.transform = 'translateX(0)';
         }
