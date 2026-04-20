@@ -1,164 +1,362 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>PHYSICS MASTER</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>PHYSICS MASTER</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#9013FE">
+    <link rel="apple-touch-icon" href="icon-192.png">
 
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#9013FE">
-<link rel="apple-touch-icon" href="icon-192.png">
+    <style>
+        :root {
+            --primary: #9013FE;
+            --primary-light: #F3E8FF;
+            --bg: #F8FAFC;
+            --card-dark: #1E293B;
+            --star-color: #FAC827;
+            --success: #22C55E;
+        }
 
-<style>
-:root { --primary:#9013FE; --bg:#F8FAFC; --card-dark:#1E293B; --star-color:#FAC827;}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-html,body{margin:0;padding:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Pretendard",sans-serif;height:100vh;overflow:hidden;touch-action:none;}
-.page{position:absolute;width:100%;height:100%;display:none;flex-direction:column;background:var(--bg);}
-.page.active{display:flex;}
-.header{padding:12px 20px;background:white;display:flex;justify-content:space-between;border-bottom:1px solid #e2e8f0;font-weight:800;}
-.lobby-content{flex:1;overflow-y:auto;padding:20px;}
-.stage-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:12px;}
-.stage-btn{background:white;border:1px solid #e2e8f0;height:80px;border-radius:12px;font-weight:700;display:flex;flex-direction:column;justify-content:center;align-items:center;}
-.stage-btn:active{transform:scale(0.95);}
-.card-wrapper{width:85%;max-width:360px;height:50vh;transform-style:preserve-3d;}
-.card-inner{width:100%;height:100%;transition:transform 0.5s;transform-style:preserve-3d;}
-.card-inner.flipped{transform:rotateY(180deg);}
-.card-face{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:24px;display:flex;justify-content:center;align-items:center;flex-direction:column;}
-.card-front{background:white;}
-.card-back{background:#1E293B;color:white;transform:rotateY(180deg);}
-.word{font-size:2rem;font-weight:800;}
-.meaning{font-size:1.6rem;color:#FAC827;}
-.nav-btn{background:white;border:2px solid var(--primary);color:var(--primary);padding:10px 20px;border-radius:20px;font-weight:800;}
-.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;display:none;justify-content:center;align-items:center;background:rgba(0,0,0,0.5);}
-.modal-overlay.visible{display:flex;}
-.modal-box{background:white;padding:30px;border-radius:20px;text-align:center;}
-</style>
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        html, body {
+            margin: 0; padding: 0; background-color: var(--bg);
+            font-family: -apple-system, BlinkMacSystemFont, "Pretendard", sans-serif;
+            height: 100vh; height: 100dvh; overflow: hidden;
+            user-select: none; -webkit-user-select: none;
+            touch-action: none; overscroll-behavior: none; 
+        }
+
+        /* --- [기존 스타일 유지] --- */
+        #intro-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--primary); z-index: 10000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            color: white; transition: opacity 0.4s ease-out, visibility 0.4s;
+        }
+        #intro-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        .page { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; flex-direction: column; z-index: 10; background: var(--bg); }
+        .page.active { display: flex; }
+        .header { padding: 12px 20px; background: white; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; font-weight: 800; }
+        .lobby-content { flex: 1; overflow-y: auto; padding: 20px; max-width: 900px; margin: 0 auto; width: 100%; touch-action: pan-y; }
+        .stage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px; }
+        .stage-btn { background: white; border: 1px solid #e2e8f0; height: 80px; border-radius: 12px; font-size: 0.9rem; font-weight: 700; color: #334155; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; transition: all 0.2s; }
+        .stage-btn:active { background: #f1f5f9; transform: scale(0.95); }
+        .stage-btn b { font-size: 1.2rem; color: var(--primary); margin-top: 4px; }
+        .tool-btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 25px; }
+        .tool-btn { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; font-weight: 800; font-size: 0.95rem; color: #334155; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .tool-btn:active { background: #f1f5f9; transform: scale(0.98); }
+        
+        /* 모달 공통 */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s; }
+        .modal-overlay.visible { display: flex; opacity: 1; }
+        .modal-box { background: white; width: 90%; max-width: 500px; border-radius: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); transform: scale(0.9); transition: transform 0.3s; overflow: hidden; display: flex; flex-direction: column; }
+        .modal-overlay.visible .modal-box { transform: scale(1); }
+
+        /* 카드 UI */
+        .game-container { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; perspective: 1200px; padding-bottom: 80px; position: relative; overflow: hidden; }
+        #bg-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; opacity: 0; display: flex; justify-content: center; align-items: center; transition: opacity 0.3s; }
+        #bg-icon { font-size: 15rem; font-weight: 900; opacity: 0.3; color: white; transform: scale(0.5); transition: transform 0.3s; }
+        .card-wrapper { width: 85%; max-width: 360px; height: 50vh; max-height: 450px; transform-style: preserve-3d; z-index: 5; touch-action: none; }
+        .card-inner { width: 100%; height: 100%; position: relative; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; }
+        .card-inner.flipped { transform: rotateY(180deg); }
+        .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 25px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.05); }
+        .card-front { background: white; color: #1E293B; }
+        .card-back { background: var(--card-dark); color: white; transform: rotateY(180deg); }
+        .word { font-size: 2.2rem; font-weight: 800; margin-bottom: 8px; word-break: keep-all; }
+        .meaning { font-size: 1.8rem; font-weight: 700; color: var(--star-color); }
+        .star-toggle { position: absolute; top: 20px; right: 20px; font-size: 2.2rem; color: #E2E8F0; z-index: 100; padding: 10px; cursor: pointer; }
+        .star-toggle.active { color: var(--star-color); }
+        .nav-bar { position: absolute; bottom: 30px; width: 100%; max-width: 400px; display: flex; justify-content: space-between; padding: 0 30px; }
+        .nav-btn { background: white; border: 2px solid var(--primary); color: var(--primary); padding: 12px 24px; border-radius: 30px; font-weight: 800; font-size: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.1s; }
+        .nav-btn:active { transform: scale(0.95); background: var(--primary); color: white; }
+
+        /* --- [신규: 학습 완료 모달 스타일] --- */
+        #finish-modal .modal-box { padding: 40px 20px; text-align: center; align-items: center; }
+        .finish-icon { font-size: 4rem; margin-bottom: 15px; animation: celebrate 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; }
+        .finish-title { font-size: 1.6rem; font-weight: 900; color: var(--card-dark); margin-bottom: 8px; }
+        .finish-desc { color: #64748B; font-size: 1rem; margin-bottom: 30px; line-height: 1.5; }
+        .finish-btn { background: var(--primary); color: white; border: none; padding: 16px 40px; border-radius: 16px; font-weight: 800; font-size: 1.1rem; width: 100%; max-width: 200px; cursor: pointer; box-shadow: 0 4px 12px rgba(144, 19, 254, 0.3); }
+        
+        @keyframes celebrate {
+            0% { transform: scale(0) rotate(-20deg); opacity: 0; }
+            70% { transform: scale(1.2) rotate(10deg); }
+            100% { transform: scale(1) rotate(0); opacity: 1; }
+        }
+    </style>
 </head>
-
 <body>
 
-<div id="lobby-page" class="page active">
-<div class="header">PHYSICS MASTER</div>
-<div class="lobby-content">
-<div class="stage-grid" id="stageGrid"></div>
-</div>
-</div>
+    <div id="intro-screen">
+        <div style="font-size: 4rem; margin-bottom: 10px;">⚛️</div>
+        <div style="font-size: 2rem; font-weight: 900;">PHYSICS MASTER</div>
+    </div>
 
-<div id="game-page" class="page">
-<div class="header">
-<button onclick="goBack()">✕</button>
-<span id="queue-count"></span>
-</div>
+    <!-- 로비 -->
+    <div id="lobby-page" class="page active">
+        <div class="header">
+            <span style="color:var(--primary)">PHYSICS MASTER</span>
+            <span id="total-stars" style="color:var(--star-color); background:#FFFBEB; padding:4px 10px; border-radius:20px; font-size:0.9rem;">⭐ 0</span>
+        </div>
+        <div class="lobby-content">
+            <div style="font-size: 0.9rem; color: #64748B; margin-bottom: 10px; font-weight: 700;">Tools & Review</div>
+            <div class="tool-btn-group">
+                <button class="tool-btn" onclick="openWordListModal()">📖 단어 목록</button>
+                <button class="tool-btn" onclick="startFavorites()">⭐ 즐겨찾기</button>
+            </div>
+            <div style="font-size: 0.9rem; color: #64748B; margin-top: 25px; margin-bottom: 10px; font-weight: 700;">Chapters</div>
+            <div class="stage-grid" id="stageGrid"></div>
+        </div>
+    </div>
 
-<div style="flex:1;display:flex;justify-content:center;align-items:center;">
-<div class="card-wrapper" id="cardWrapper">
-<div class="card-inner" id="cardInner">
-<div class="card-face card-front">
-<div class="word" id="en"></div>
-</div>
-<div class="card-face card-back">
-<div class="meaning" id="kr"></div>
-</div>
-</div>
-</div>
-</div>
+    <!-- 게임 -->
+    <div id="game-page" class="page">
+        <div class="header">
+            <button onclick="goBack()" style="background:none; border:none; font-size:1.4rem; color:#64748B; padding:0 10px;">✕</button>
+            <div id="stage-info" style="font-size:1rem;">Chapter 1</div>
+            <span id="queue-count" style="color:var(--primary); font-variant-numeric: tabular-nums;">0 / 0</span>
+        </div>
+        
+        <div class="game-container" id="touchArea">
+            <div id="bg-overlay"><div id="bg-icon"></div></div>
+            <div class="card-wrapper" id="cardWrapper">
+                <div class="card-inner" id="cardInner">
+                    <div class="card-face card-front">
+                        <div class="star-toggle" id="starFront" onclick="toggleStar(event)">☆</div>
+                        <div class="word" id="en">Word</div>
+                        <div style="margin-top:15px; color:#CBD5E1; font-size:0.8rem;">탭하여 뒤집기</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <div class="star-toggle" id="starBack" onclick="toggleStar(event)">☆</div>
+                        <div class="meaning" id="kr">Meaning</div>
+                    </div>
+                </div>
+            </div>
+            <div class="nav-bar">
+                <button class="nav-btn" onclick="prevCard()">← 이전</button>
+                <button class="nav-btn" onclick="nextCard()">다음 →</button>
+            </div>
+        </div>
+    </div>
 
-<div style="display:flex;justify-content:space-between;padding:20px;">
-<button class="nav-btn" onclick="prevCard()">←</button>
-<button class="nav-btn" onclick="nextCard()">→</button>
-</div>
-</div>
+    <!-- [모달] 단어 목록 -->
+    <div id="word-list-modal" class="modal-overlay">
+        <div class="modal-box" style="height: 80vh;">
+            <div class="modal-header" style="padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin:0;">📖 전체 단어 목록</h3>
+                <button onclick="closeWordListModal()" style="background:none; border:none; font-size:1.5rem; color:#888;">✕</button>
+            </div>
+            <div class="modal-content" id="word-list-content"></div>
+        </div>
+    </div>
 
-<!-- 완료 모달 -->
-<div id="finish-modal" class="modal-overlay">
-<div class="modal-box">
-<div style="font-size:3rem;">🎉</div>
-<h2>수고하셨습니다!</h2>
-<p>챕터 완료</p>
-<button class="nav-btn" onclick="closeFinishModal()">확인</button>
-</div>
-</div>
+    <!-- [신규 모달] 학습 완료 안내 -->
+    <div id="finish-modal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="finish-icon">🎉</div>
+            <div class="finish-title">학습을 마쳤습니다!</div>
+            <div class="finish-desc">해당 챕터의 모든 단어를<br>성공적으로 확인했습니다.</div>
+            <button class="finish-btn" onclick="closeFinishModal()">로비로 가기</button>
+        </div>
+    </div>
 
-<script>
-const physData={
-1:[{en:"physics",kr:"물리학"},{en:"mechanics",kr:"역학"}]
-};
 
-let activeQueue=[];
-let currentIndex=0;
+    <script>
+        const physData = {
+            1: [{en:"physics",kr:"물리학"},{en:"mechanics",kr:"역학"},{en:"wave motion",kr:"파동"},{en:"thermodynamics",kr:"열역학"},{en:"electromagnetism",kr:"전자기학"},{en:"optics",kr:"광학"},{en:"quantum mechanics",kr:"양자역학"},{en:"modern physics",kr:"현대물리학"},{en:"theory of relativity",kr:"상대성이론"},{en:"metric system",kr:"단위계"},{en:"operational definition",kr:"조작적 정의"},{en:"explicit-constant",kr:"명시적 상수"},{en:"time",kr:"시간"},{en:"length",kr:"길이"},{en:"mass",kr:"질량"},{en:"scientific notation",kr:"과학적 표기법"},{en:"significant figure",kr:"유효 숫자"}],
+            2: [{en:"horizontal plane",kr:"수평면"},{en:"vertical",kr:"수직, 연직"},{en:"kinematics",kr:"운동학"},{en:"average speed",kr:"평균 속력"},{en:"displacement",kr:"변위"},{en:"average velocity",kr:"평균 속도"},{en:"coordinate system",kr:"좌표계"},{en:"instantaneous velocity",kr:"순간 속도"},{en:"instantaneous speed",kr:"순간 속력"},{en:"derivative",kr:"도함수"},{en:"infinitesimal",kr:"무한소"},{en:"acceleration",kr:"가속도"},{en:"average acceleration",kr:"평균 가속도"},{en:"second derivative",kr:"이계 도함수"},{en:"constant acceleration",kr:"등가속도"},{en:"uniformly accelerated motion",kr:"등가속도 운동"},{en:"equation of motion",kr:"운동 방정식"},{en:"gravitational acceleration, acceleration of gravity",kr:"중력 가속도"},{en:"free fall",kr:"자유 낙하"},{en:"initial condition",kr:"초기 조건"}],
+            3: [{en:"air resistance",kr:"공기 저항"},{en:"position vector",kr:"위치 벡터"},{en:"displacement vector",kr:"변위 벡터"},{en:"vector addition",kr:"벡터 더하기"},{en:"component",kr:"성분"},{en:"Cartesian coordinate system",kr:"데카르트 좌표계"},{en:"rectangular coordinate system",kr:"직각 좌표계"},{en:"unit vector",kr:"단위 벡터"},{en:"frame of reference",kr:"기준틀"},{en:"projectile",kr:"발사체"},{en:"trajectory",kr:"궤적"},{en:"horizontal range",kr:"수평 도달 거리"},{en:"uniform circular motion",kr:"등속 원운동"},{en:"centripetal acceleration",kr:"구심 가속도"},{en:"radial acceleration",kr:"지름 가속도"},{en:"tangential acceleration",kr:"접선 가속도"},{en:"radius of curvature",kr:"곡률 반지름"}],
+            4: [{en:"interaction force",kr:"상호작용 힘"},{en:"net force",kr:"알짜힘"},{en:"uniform motion",kr:"등속 운동"},{en:"constant velocity linear motion",kr:"등속 직선 운동"},{en:"momentum",kr:"운동량"},{en:"inertia",kr:"관성"},{en:"inertial reference frame",kr:"관성 기준계"},{en:"inertial force",kr:"관성력"},{en:"tension, tensile force",kr:"장력"},{en:"contact force",kr:"접촉력"},{en:"action-at-a-distance force",kr:"원격 작용력"},{en:"pendulum",kr:"진자"},{en:"gravity, gravitational force",kr:"중력"},{en:"electroweak force",kr:"전자기약력"},{en:"electromagnetism",kr:"전자기력"},{en:"weak nuclear force",kr:"약한 핵력"},{en:"strong force",kr:"강력"},{en:"weight",kr:"무게"},{en:"apparent weightlessness",kr:"겉보기 무중력 상태"},{en:"free body diagram",kr:"자유 물체 도형"},{en:"apparent weight",kr:"겉보기 무게"},{en:"interaction force pair",kr:"상호작용 짝힘"},{en:"normal force",kr:"수직 항력"},{en:"elastic force",kr:"탄성력"},{en:"spring constant",kr:"용수철 상수"},{en:"spring scale",kr:"용수철 저울"}],
+            5: [{en:"centripetal force",kr:"구심력"},{en:"centrifugal force",kr:"원심력"},{en:"friction, frictional force",kr:"마찰력"},{en:"static friction",kr:"정지 마찰력"},{en:"coefficient of static friction",kr:"정지 마찰 계수"},{en:"kinetic friction",kr:"운동 마찰력"},{en:"coefficient of kinetic friction",kr:"운동 마찰 계수"},{en:"drag force",kr:"끌림힘"},{en:"terminal speed",kr:"종단 속력"}],
+            6: [{en:"mechanical energy",kr:"역학적 에너지"},{en:"potential energy",kr:"퍼텐셜 에너지"},{en:"internal energy",kr:"내부 에너지"},{en:"electromagnetic energy",kr:"전자기 에너지"},{en:"system",kr:"계"},{en:"work",kr:"일"},{en:"scalar product",kr:"스칼라곱"},{en:"dot product",kr:"점곱"},{en:"definite integral",kr:"정적분"},{en:"line integral",kr:"선적분"},{en:"work-kinetic energy theorem",kr:"일-운동 에너지 정리"},{en:"power",kr:"일률"}],
+            7: [{en:"conservative force",kr:"보존력"},{en:"non-conservative force",kr:"비보존력"},{en:"elastic potential energy",kr:"탄성 퍼텐셜 에너지"},{en:"gravitational field",kr:"중력장"},{en:"electric field",kr:"전기장"},{en:"thermal energy",kr:"열에너지"},{en:"electromagnetic radiation",kr:"전자기 복사"},{en:"conservation of mass-energy",kr:"질량-에너지 보존"},{en:"potential energy curve",kr:"퍼텐셜 에너지 곡선"},{en:"potential barrier",kr:"퍼텐셜 장벽"},{en:"potential well",kr:"퍼텐셜 우물"},{en:"bound system",kr:"속박계"}],
+            8: [{en:"constant of universal gravitation",kr:"만유인력 상수"},{en:"circular orbit",kr:"원형 궤도"},{en:"orbital period",kr:"궤도 주기"},{en:"perihelion",kr:"근일점"},{en:"aphelion",kr:"원일점"},{en:"escape speed",kr:"탈출 속력"}],
+            9: [{en:"center of mass",kr:"질량 중심"},{en:"external force",kr:"알짜 외력"},{en:"mass element",kr:"질량 요소"},{en:"conservation of linear momentum",kr:"선운동량 보존"},{en:"kinetic energy of center of mass",kr:"질량 중심의 운동 에너지"},{en:"internal kinetic energy",kr:"내부 운동 에너지"},{en:"impulse",kr:"충격량"},{en:"totally inelastic collision",kr:"완전 비탄성 충돌"},{en:"elastic collision",kr:"탄성 충돌"},{en:"impact parameter",kr:"충격 변수"}]
+        };
 
-function renderLobby(){
-const grid=document.getElementById('stageGrid');
-grid.innerHTML='';
-for(let i=1;i<=1;i++){
-const btn=document.createElement('div');
-btn.className='stage-btn';
-btn.innerText='Chapter '+i;
-btn.onclick=()=>startChapter(i);
-grid.appendChild(btn);
-}
-}
-renderLobby();
+        let starredWords = JSON.parse(localStorage.getItem('physStars') || '[]');
+        let activeQueue = [];
+        let currentIndex = 0;
+        let isFlipped = false;
 
-function showPage(id){
-document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-document.getElementById(id).classList.add('active');
-}
+        setTimeout(() => document.getElementById('intro-screen').classList.add('hidden'), 1000);
 
-function startChapter(num){
-activeQueue=physData[num];
-currentIndex=0;
-updateCard();
-showPage('game-page');
-}
+        function renderLobby() {
+            const grid = document.getElementById('stageGrid');
+            grid.innerHTML = '';
+            for (let i = 1; i <= 9; i++) {
+                const btn = document.createElement('div');
+                btn.className = 'stage-btn';
+                btn.innerHTML = `<span>Chapter</span><b>${i}</b>`;
+                btn.onclick = () => startChapter(i);
+                grid.appendChild(btn);
+            }
+            document.getElementById('total-stars').innerText = `⭐ ${starredWords.length}`;
+        }
+        renderLobby();
 
-function updateCard(){
-const c=activeQueue[currentIndex];
-document.getElementById('en').innerText=c.en;
-document.getElementById('kr').innerText=c.kr;
-document.getElementById('queue-count').innerText=(currentIndex+1)+'/'+activeQueue.length;
-}
+        function showPage(id) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
 
-function nextCard(){
-if(currentIndex<activeQueue.length-1){
-currentIndex++;
-updateCard();
-}else{
-showFinishModal();
-}
-}
+        function startChapter(num) {
+            activeQueue = physData[num].map((d, i) => ({ ...d, id: `phys-${num}-${i}` }));
+            activeQueue.sort(() => Math.random() - 0.5);
+            currentIndex = 0;
+            document.getElementById('stage-info').innerText = `Chapter ${num}`;
+            initGame();
+        }
 
-function prevCard(){
-if(currentIndex>0){
-currentIndex--;
-updateCard();
-}else{
-bounce();
-}
-}
+        function startFavorites() {
+            if (starredWords.length === 0) return;
+            activeQueue = [];
+            starredWords.forEach(sid => {
+                const p = sid.split('-');
+                const ch = p[1], idx = p[2];
+                if(physData[ch] && physData[ch][idx]) activeQueue.push({ ...physData[ch][idx], id: sid });
+            });
+            activeQueue.sort(() => Math.random() - 0.5);
+            currentIndex = 0;
+            document.getElementById('stage-info').innerText = "Review Starred";
+            initGame();
+        }
 
-function bounce(){
-const cw=document.getElementById('cardWrapper');
-cw.style.transition='0.3s';
-cw.style.transform='translateX(0)';
-}
+        // 학습 완료 모달 제어
+        function showFinishModal() {
+            const modal = document.getElementById('finish-modal');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('visible'), 10);
+        }
 
-function goBack(){
-showPage('lobby-page');
-}
+        function closeFinishModal() {
+            const modal = document.getElementById('finish-modal');
+            modal.classList.remove('visible');
+            setTimeout(() => {
+                modal.style.display = 'none';
+                goBack();
+            }, 300);
+        }
 
-function showFinishModal(){
-const m=document.getElementById('finish-modal');
-m.style.display='flex';
-setTimeout(()=>m.classList.add('visible'),10);
-}
+        function initGame() {
+            updateCard();
+            showPage('game-page');
+        }
 
-function closeFinishModal(){
-const m=document.getElementById('finish-modal');
-m.classList.remove('visible');
-setTimeout(()=>{m.style.display='none';goBack();},300);
-}
-</script>
+        function updateCard() {
+            if (activeQueue.length === 0) { goBack(); return; }
+            const currentCard = activeQueue[currentIndex];
+            document.getElementById('en').innerText = currentCard.en;
+            document.getElementById('kr').innerText = currentCard.kr;
+            document.getElementById('queue-count').innerText = `${currentIndex + 1} / ${activeQueue.length}`;
+            const isS = starredWords.includes(currentCard.id);
+            document.getElementById('starFront').innerText = isS ? "★" : "☆";
+            document.getElementById('starBack').innerText = isS ? "★" : "☆";
+            document.getElementById('starFront').classList.toggle('active', isS);
+            document.getElementById('starBack').classList.toggle('active', isS);
+            resetCardUI();
+        }
 
+        function nextCard() {
+            if (currentIndex < activeQueue.length - 1) {
+                currentIndex++;
+                animateCardChange('right');
+            } else {
+                showFinishModal(); // 수정됨: 이쁘게 띄우기
+            }
+        }
+
+        function prevCard() {
+            if (currentIndex > 0) { currentIndex--; animateCardChange('left'); }
+        }
+
+        // 기타 기능 (기존과 동일)
+        function toggleStar(e) {
+            e.stopPropagation();
+            const currentCard = activeQueue[currentIndex];
+            const idx = starredWords.indexOf(currentCard.id);
+            if (idx > -1) starredWords.splice(idx, 1); else starredWords.push(currentCard.id);
+            localStorage.setItem('physStars', JSON.stringify(starredWords));
+            updateCard();
+        }
+
+        function goBack() { renderLobby(); showPage('lobby-page'); }
+
+        const touchArea = document.getElementById('touchArea');
+        const cw = document.getElementById('cardWrapper');
+        const ci = document.getElementById('cardInner');
+        const bgOverlay = document.getElementById('bg-overlay');
+        const bgIcon = document.getElementById('bg-icon');
+        let startX = 0, currentX = 0, isDragging = false;
+
+        touchArea.addEventListener('touchstart', e => {
+            if(e.target.closest('.star-toggle') || e.target.closest('.nav-btn')) return;
+            isDragging = true; startX = e.touches[0].clientX; cw.style.transition = 'none';
+        });
+        touchArea.addEventListener('touchmove', e => {
+            if (!isDragging) return;
+            currentX = e.touches[0].clientX;
+            let dx = currentX - startX;
+            cw.style.transform = `translateX(${dx}px) rotate(${dx * 0.05}deg)`;
+            const prog = Math.min(Math.abs(dx) / (window.innerWidth * 0.4), 1);
+            bgOverlay.style.opacity = 1;
+            if (dx > 0) { bgOverlay.style.backgroundColor = `rgba(139, 195, 74, ${prog * 0.8})`; bgIcon.innerText = "O"; }
+            else { bgOverlay.style.backgroundColor = `rgba(239, 83, 80, ${prog * 0.8})`; bgIcon.innerText = "X"; }
+            bgIcon.style.transform = `scale(${0.5 + prog * 0.5})`;
+        });
+        touchArea.addEventListener('touchend', () => {
+            if (!isDragging) return; isDragging = false;
+            bgOverlay.style.opacity = 0;
+            let dx = currentX - startX;
+            if (Math.abs(dx) < 20) {
+                isFlipped = !isFlipped;
+                ci.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+                ci.classList.toggle('flipped', isFlipped);
+                cw.style.transform = 'translateX(0) rotate(0)';
+            } else if (Math.abs(dx) > 100) {
+                if (dx > 0) nextCard(); else prevCard();
+            } else {
+                cw.style.transition = 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                cw.style.transform = 'translateX(0) rotate(0)';
+            }
+        });
+
+        function animateCardChange(direction) {
+            const destX = direction === 'right' ? window.innerWidth + 200 : -window.innerWidth - 200;
+            cw.style.transition = 'transform 0.25s ease-out';
+            cw.style.transform = `translateX(${destX}px) rotate(${direction === 'right' ? 30 : -30}deg)`;
+            setTimeout(updateCard, 250);
+        }
+
+        function resetCardUI() {
+            isFlipped = false;
+            ci.style.transition = 'none'; ci.classList.remove('flipped');
+            cw.style.transition = 'none'; cw.style.transform = 'translateX(0) rotate(0)';
+            void cw.offsetWidth;
+        }
+
+        function openWordListModal() {
+            const content = document.getElementById('word-list-content');
+            content.innerHTML = '';
+            for (const ch in physData) {
+                const h = document.createElement('h4'); h.innerText = `Chapter ${ch}`; h.style.color = 'var(--primary)'; h.style.margin = '20px 0 10px';
+                content.appendChild(h);
+                const t = document.createElement('table'); t.style.width = '100%'; t.style.borderCollapse = 'collapse';
+                physData[ch].forEach(w => {
+                    const r = t.insertRow();
+                    r.innerHTML = `<td style="padding:10px; border-bottom:1px solid #eee; font-weight:600;">${w.kr}</td><td style="padding:10px; border-bottom:1px solid #eee; color:#666;">${w.en}</td>`;
+                });
+                content.appendChild(t);
+            }
+            document.getElementById('word-list-modal').style.display = 'flex';
+            setTimeout(() => document.getElementById('word-list-modal').classList.add('visible'), 10);
+        }
+        function closeWordListModal() {
+            document.getElementById('word-list-modal').classList.remove('visible');
+            setTimeout(() => document.getElementById('word-list-modal').style.display = 'none', 300);
+        }
+    </script>
 </body>
 </html>
