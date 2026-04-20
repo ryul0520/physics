@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <!-- 화면 확대/축소 완벽 차단을 위한 viewport 설정 -->
+    <!-- 모바일 환경에서 화면 확대/축소 완벽 차단 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>PHYSICS MASTER</title>
     
@@ -20,13 +20,15 @@
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
-        body {
+        html, body {
             margin: 0; padding: 0; background-color: var(--bg);
             font-family: -apple-system, BlinkMacSystemFont, "Pretendard", sans-serif;
             height: 100vh; height: 100dvh; overflow: hidden;
             user-select: none; -webkit-user-select: none;
-            /* 모바일 브라우저의 기본 줌, 더블탭 확대 등 방지 */
-            touch-action: none; 
+            
+            /* 브라우저 기본 줌, 스와이프 뒤로가기, 바운스 현상 완벽 차단 */
+            touch-action: none;
+            overscroll-behavior: none; 
         }
 
         /* 인트로 */
@@ -52,7 +54,7 @@
         /* 로비 (패드 최적화) */
         .lobby-content { 
             flex: 1; overflow-y: auto; padding: 20px; max-width: 900px; margin: 0 auto; width: 100%; 
-            touch-action: pan-y; /* 로비는 상하 스크롤 허용 */
+            touch-action: pan-y; /* 로비 목록에서는 상하 스크롤 허용 */
         }
         .stage-grid { 
             display: grid; 
@@ -66,7 +68,7 @@
             cursor: pointer; transition: all 0.2s;
         }
         .stage-btn:active { background: #f1f5f9; transform: scale(0.95); }
-        .stage-btn b { font-size: 1.2rem; color: var(--primary); }
+        .stage-btn b { font-size: 1.2rem; color: var(--primary); margin-top: 4px; }
 
         /* 즐겨찾기 버튼 */
         .fav-main-btn {
@@ -75,22 +77,23 @@
             display: flex; justify-content: center; align-items: center; gap: 10px;
             font-weight: 800; color: #92400E; cursor: pointer;
         }
+        .fav-main-btn:active { transform: scale(0.98); }
 
         /* 카드 게임 */
-        #game-page { touch-action: none; /* 게임 화면은 스크롤/줌 완벽 차단 */ }
-        .game-container { flex: 1; display: flex; justify-content: center; align-items: center; perspective: 1200px; padding-bottom: 40px; position: relative; }
-        
-        /* O/X 배경 효과 */
-        #bg-overlay { 
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            z-index: 1; pointer-events: none; opacity: 0; 
-            display: flex; justify-content: center; align-items: center; 
-            transition: opacity 0.1s, background-color 0.1s;
+        #game-page { touch-action: none; } /* 게임 화면 스크롤/줌 원천 차단 */
+        .game-container { 
+            flex: 1; display: flex; flex-direction: column; justify-content: center; 
+            align-items: center; perspective: 1200px; padding-bottom: 80px; position: relative; 
         }
-        #bg-icon { font-size: 12rem; color: white; opacity: 0.6; font-weight: 900; transition: transform 0.1s; }
-
-        .card-wrapper { width: 85%; max-width: 360px; height: 50vh; max-height: 450px; transform-style: preserve-3d; z-index: 5; }
-        .card-inner { width: 100%; height: 100%; position: relative; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; cursor: pointer; }
+        
+        .card-wrapper { 
+            width: 85%; max-width: 360px; height: 50vh; max-height: 450px; 
+            transform-style: preserve-3d; z-index: 5; touch-action: none;
+        }
+        .card-inner { 
+            width: 100%; height: 100%; position: relative; 
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; 
+        }
         .card-inner.flipped { transform: rotateY(180deg); }
         .card-face { 
             position: absolute; width: 100%; height: 100%; backface-visibility: hidden; 
@@ -103,11 +106,21 @@
         .word { font-size: 2.2rem; font-weight: 800; margin-bottom: 8px; word-break: keep-all; }
         .meaning { font-size: 1.8rem; font-weight: 700; color: var(--star-color); }
         
-        .star-toggle { position: absolute; top: 20px; right: 20px; font-size: 2.2rem; color: #E2E8F0; z-index: 100; padding: 10px; }
+        .star-toggle { position: absolute; top: 20px; right: 20px; font-size: 2.2rem; color: #E2E8F0; z-index: 100; padding: 10px; cursor: pointer; }
         .star-toggle.active { color: var(--star-color); }
 
-        /* 가이드 */
-        .swipe-guide { position: absolute; bottom: 25px; width: 100%; display: flex; justify-content: space-around; color: #94A3B8; font-size: 0.9rem; font-weight: 700; }
+        /* 하단 네비게이션 버튼 */
+        .nav-bar { 
+            position: absolute; bottom: 30px; width: 100%; max-width: 400px;
+            display: flex; justify-content: space-between; padding: 0 30px;
+        }
+        .nav-btn {
+            background: white; border: 2px solid var(--primary); color: var(--primary);
+            padding: 12px 24px; border-radius: 30px; font-weight: 800; font-size: 1rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.1s;
+        }
+        .nav-btn:active { transform: scale(0.95); background: var(--primary); color: white; }
+
     </style>
 </head>
 <body>
@@ -135,15 +148,12 @@
     <!-- 게임 -->
     <div id="game-page" class="page">
         <div class="header">
-            <button onclick="goBack()" style="background:none; border:none; font-size:1.4rem; color:#64748B;">✕</button>
+            <button onclick="goBack()" style="background:none; border:none; font-size:1.4rem; color:#64748B; padding:0 10px;">✕</button>
             <div id="stage-info" style="font-size:1rem;">Chapter 1</div>
             <span id="queue-count" style="color:var(--primary); font-variant-numeric: tabular-nums;">0 / 0</span>
         </div>
         
-        <div class="game-container">
-            <!-- 배경 O/X 표시 -->
-            <div id="bg-overlay"><div id="bg-icon"></div></div>
-
+        <div class="game-container" id="touchArea">
             <div class="card-wrapper" id="cardWrapper">
                 <div class="card-inner" id="cardInner">
                     <div class="card-face card-front">
@@ -157,11 +167,12 @@
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div class="swipe-guide">
-            <span style="color: #EF4444;">← X (다시보기)</span>
-            <span style="color: #22C55E;">O (제거) →</span>
+            
+            <!-- 이전/다음 버튼 -->
+            <div class="nav-bar">
+                <button class="nav-btn" onclick="prevCard()">← 이전</button>
+                <button class="nav-btn" onclick="nextCard()">다음 →</button>
+            </div>
         </div>
     </div>
 
@@ -179,7 +190,9 @@
         };
 
         let starredWords = JSON.parse(localStorage.getItem('physStars') || '[]');
-        let activeQueue = [], currentCard = null, isFlipped = false;
+        let activeQueue = [];
+        let currentIndex = 0; // 현재 보고 있는 단어의 인덱스 번호
+        let isFlipped = false;
 
         setTimeout(() => document.getElementById('intro-screen').classList.add('hidden'), 1000);
 
@@ -204,7 +217,10 @@
 
         function startChapter(num) {
             activeQueue = physData[num].map((d, i) => ({ ...d, id: `phys-${num}-${i}` }));
+            // 단어 섞기
             activeQueue.sort(() => Math.random() - 0.5);
+            currentIndex = 0;
+            
             document.getElementById('stage-info').innerText = `Chapter ${num}`;
             initGame();
         }
@@ -218,6 +234,8 @@
                 if(physData[ch] && physData[ch][idx]) activeQueue.push({ ...physData[ch][idx], id: sid });
             });
             activeQueue.sort(() => Math.random() - 0.5);
+            currentIndex = 0;
+            
             document.getElementById('stage-info').innerText = "Review Starred";
             initGame();
         }
@@ -229,15 +247,15 @@
 
         function updateCard() {
             if (activeQueue.length === 0) { 
-                alert("현재 목록의 모든 단어를 학습했습니다!"); 
+                alert("단어 목록이 비어 있습니다."); 
                 goBack(); 
                 return; 
             }
             
-            currentCard = activeQueue[0];
+            const currentCard = activeQueue[currentIndex];
             document.getElementById('en').innerText = currentCard.en;
             document.getElementById('kr').innerText = currentCard.kr;
-            document.getElementById('queue-count').innerText = `${activeQueue.length} left`;
+            document.getElementById('queue-count').innerText = `${currentIndex + 1} / ${activeQueue.length}`;
             
             const isS = starredWords.includes(currentCard.id);
             document.getElementById('starFront').innerText = isS ? "★" : "☆";
@@ -248,13 +266,40 @@
             resetCardUI();
         }
 
+        // 버튼으로 제어하는 함수
+        function prevCard() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                animateCardChange('left');
+            } else {
+                alert("첫 번째 단어입니다.");
+            }
+        }
+
+        function nextCard() {
+            if (currentIndex < activeQueue.length - 1) {
+                currentIndex++;
+                animateCardChange('right');
+            } else {
+                alert("마지막 단어입니다! 수고하셨습니다.");
+                goBack();
+            }
+        }
+
         function toggleStar(e) {
-            e.stopPropagation();
+            e.stopPropagation(); // 클릭 이벤트 전파 방지
+            const currentCard = activeQueue[currentIndex];
             const idx = starredWords.indexOf(currentCard.id);
             if (idx > -1) starredWords.splice(idx, 1);
             else starredWords.push(currentCard.id);
             localStorage.setItem('physStars', JSON.stringify(starredWords));
-            updateCard();
+            
+            // UI 즉시 업데이트
+            const isS = starredWords.includes(currentCard.id);
+            document.getElementById('starFront').innerText = isS ? "★" : "☆";
+            document.getElementById('starBack').innerText = isS ? "★" : "☆";
+            document.getElementById('starFront').classList.toggle('active', isS);
+            document.getElementById('starBack').classList.toggle('active', isS);
         }
 
         function goBack() { 
@@ -262,52 +307,44 @@
             showPage('lobby-page'); 
         }
 
-        // --- 통합된 제스처(드래그 및 탭) 로직 ---
+        // --- 모바일 기기 터치/스와이프 완벽 처리 ---
+        const touchArea = document.getElementById('touchArea');
         const cw = document.getElementById('cardWrapper');
         const ci = document.getElementById('cardInner');
-        const bgOver = document.getElementById('bg-overlay');
-        const bgIcon = document.getElementById('bg-icon');
         
         let startX = 0, currentX = 0, isDragging = false;
 
+        // 아이패드 브라우저 기본 스크롤/줌/스와이프 이벤트를 차단 (가장 중요)
+        touchArea.addEventListener('touchmove', function(e) {
+            e.preventDefault(); 
+        }, { passive: false });
+
         cw.addEventListener('touchstart', e => {
+            if(e.target.closest('.star-toggle') || e.target.closest('.nav-btn')) return;
+            
             isDragging = true; 
             startX = e.touches[0].clientX;
             currentX = startX;
-            cw.style.transition = 'none';
-        });
+            cw.style.transition = 'none'; // 드래그 중 애니메이션 제거
+        }, { passive: false });
 
         cw.addEventListener('touchmove', e => {
             if (!isDragging) return;
-            
-            // touchmove 시 브라우저 기본 스와이프(뒤로가기/확대 등) 방지
-            e.preventDefault(); 
+            e.preventDefault(); // 스와이프 도중 브라우저 액션 완벽 차단
             
             currentX = e.touches[0].clientX;
             let dx = currentX - startX;
             
+            // 카드 이동 및 약간의 회전 효과 (O/X 색상 변경 기능은 제거됨)
             cw.style.transform = `translateX(${dx}px) rotate(${dx * 0.05}deg)`;
-
-            const progress = Math.min(Math.abs(dx) / (window.innerWidth * 0.3), 1);
-            if (dx < 0) {
-                bgOver.style.backgroundColor = `rgba(239, 68, 68, ${progress * 0.8})`; // Red
-                bgIcon.innerText = "X";
-            } else if (dx > 0) {
-                bgOver.style.backgroundColor = `rgba(34, 197, 94, ${progress * 0.8})`; // Green
-                bgIcon.innerText = "O";
-            }
-            bgOver.style.opacity = 1;
-            bgIcon.style.transform = `scale(${0.5 + progress * 0.5})`;
-        }, { passive: false }); // preventDefault 작동을 위해 필수
+        }, { passive: false });
 
         cw.addEventListener('touchend', e => {
             if (!isDragging) return;
             isDragging = false;
             let dx = currentX - startX;
 
-            bgOver.style.opacity = 0;
-            bgIcon.style.transform = 'scale(0.5)';
-
+            // 1. 단순 탭(클릭)으로 판단될 때 -> 카드 뒤집기
             if (Math.abs(dx) < 15) {
                 isFlipped = !isFlipped;
                 ci.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
@@ -317,32 +354,60 @@
                 return;
             }
 
-            if (Math.abs(dx) > 100) {
-                const destX = dx > 0 ? window.innerWidth + 200 : -window.innerWidth - 200;
-                const destRotate = dx > 0 ? 30 : -30;
-                
-                cw.style.transition = 'transform 0.3s ease-out';
-                cw.style.transform = `translateX(${destX}px) rotate(${destRotate}deg)`;
-
-                setTimeout(() => {
-                    if (dx > 0) { 
-                        activeQueue.shift();
-                    } else { 
-                        activeQueue.push(activeQueue.shift());
+            // 2. 스와이프로 판단될 때 -> 이전/다음 단어
+            if (Math.abs(dx) > 80) {
+                if (dx > 0) { 
+                    // 오른쪽으로 밀면: 다음 카드
+                    if (currentIndex < activeQueue.length - 1) {
+                        currentIndex++;
+                        animateCardChange('right', dx);
+                    } else {
+                        alert("마지막 단어입니다.");
+                        cw.style.transition = 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                        cw.style.transform = 'translateX(0) rotate(0)';
                     }
-                    updateCard();
-                }, 300);
+                } else { 
+                    // 왼쪽으로 밀면: 이전 카드
+                    if (currentIndex > 0) {
+                        currentIndex--;
+                        animateCardChange('left', dx);
+                    } else {
+                        alert("첫 번째 단어입니다.");
+                        cw.style.transition = 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                        cw.style.transform = 'translateX(0) rotate(0)';
+                    }
+                }
             } else {
+                // 스와이프 거리가 짧으면 제자리로 튕겨 돌아옴
                 cw.style.transition = 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
                 cw.style.transform = 'translateX(0) rotate(0)';
             }
         });
 
+        // 카드가 넘어가면서 화면 밖으로 사라지는 효과
+        function animateCardChange(direction, currentDx = 0) {
+            const destX = direction === 'right' ? window.innerWidth + 200 : -window.innerWidth - 200;
+            const destRotate = direction === 'right' ? 30 : -30;
+            
+            // 이미 드래그된 상태면 그 위치에서부터 부드럽게 날아가고, 버튼으로 누른거면 중앙에서부터 날아감
+            cw.style.transition = 'transform 0.25s ease-out';
+            cw.style.transform = `translateX(${destX}px) rotate(${destRotate}deg)`;
+
+            setTimeout(() => {
+                updateCard();
+            }, 250); 
+        }
+
+        // 카드 초기화
         function resetCardUI() {
             isFlipped = false;
+            ci.style.transition = 'none'; 
             ci.classList.remove('flipped');
+            
             cw.style.transition = 'none';
             cw.style.transform = 'translateX(0) rotate(0)';
+            
+            // 브라우저 렌더링 리플로우 강제 (애니메이션 꼬임 방지)
             void cw.offsetWidth; 
         }
     </script>
