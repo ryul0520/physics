@@ -8,7 +8,7 @@
   "theme_color": "#222222",
   "icons":[
     {
-      "src": "iconpark.png",
+      "src": "parkicon.png",
       "sizes": "192x192 512x512",
       "type": "image/png"
     }
